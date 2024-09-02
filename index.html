@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Production Lines</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: url('/storage/emulated/0/Openday/assets/background.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #tile-container {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr); /* Fixed number of tiles per row */
+            gap: 40px;
+            width: 100%;
+            height: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        .tile {
+            background-color: rgba(135, 206, 250, 0.8); /* Light blue with transparency */
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 30px;
+            font-size: 52px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+        .tile:hover {
+            transform: scale(1.05);
+            background-color: rgba(90, 154, 191, 0.8); /* Darker blue on hover */
+        }
+        #video-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        video {
+            width: 100%;
+            max-height: calc(100vh - 80px); /* Adjust to fit the button as well */
+            border-radius: 10px;
+            object-fit: cover;
+        }
+        #back-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 24px;
+            color: white;
+            background-color: rgba(135, 206, 250, 0.8);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        #back-button:hover {
+            background-color: rgba(90, 154, 191, 0.8);
+        }
+        /* Responsive design: Adjust the number of tiles per row based on screen size */
+        @media (max-width: 1200px) {
+            #tile-container {
+                grid-template-columns: repeat(4, 1fr); /* 4 tiles per row */
+            }
+        }
+        @media (max-width: 900px) {
+            #tile-container {
+                grid-template-columns: repeat(3, 1fr); /* 3 tiles per row */
+            }
+        }
+        @media (max-width: 600px) {
+            #tile-container {
+                grid-template-columns: repeat(2, 1fr); /* 2 tiles per row */
+            }
+        }
+        @media (max-width: 400px) {
+            #tile-container {
+                grid-template-columns: 1fr; /* 1 tile per row */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="tile-container">
+        <!-- Tiles will be dynamically inserted here -->
+    </div>
+
+    <div id="video-container">
+        <video id="video-player" controls>
+            <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        <button id="back-button" onclick="showTiles()">Powrót</button>
+    </div>
+
+    <script>
+        const tileContainer = document.getElementById('tile-container');
+        const videoContainer = document.getElementById('video-container');
+        const videoPlayer = document.getElementById('video-player');
+
+        // Array of video URLs for each production line
+        // const videoUrls = [
+        //     "https://www.w3schools.com/html/mov_bbb.mp4",
+        //     "https://www.w3schools.com/html/movie.mp4",
+        //     // Add more video URLs for other production lines here...
+        // ];
+
+        const tileNamePaths = {
+          L00: '/storage/emulated/0/Openday/assets/videos/L00.mov',
+          L04: '/storage/emulated/0/Openday/assets/videos/L04.mov',
+          L05: '/storage/emulated/0/Openday/assets/videos/L05.mov',
+          L06: '/storage/emulated/0/Openday/assets/videos/L06.mov',
+          L10: '/storage/emulated/0/Openday/assets/videos/L10.mov',
+          L11: '/storage/emulated/0/Openday/assets/videos/L11.mov',
+          L12: '/storage/emulated/0/Openday/assets/videos/L12.mov',
+          L13: '/storage/emulated/0/Openday/assets/videos/L13.mov',
+          L15: '/storage/emulated/0/Openday/assets/videos/L15.mov',
+          L16: '/storage/emulated/0/Openday/assets/videos/L16.mov',
+          L17: '/storage/emulated/0/Openday/assets/videos/L17.mov',
+          L23: '/storage/emulated/0/Openday/assets/videos/L23.mov',
+          L32: '/storage/emulated/0/Openday/assets/videos/L32.mov',
+          L41: '/storage/emulated/0/Openday/assets/videos/L41.mov',
+          L53: '/storage/emulated/0/Openday/assets/videos/L53.mov',
+          L55: '/storage/emulated/0/Openday/assets/videos/L55.mov',
+          L56: '/storage/emulated/0/Openday/assets/videos/L56.mov',
+          L57: '/storage/emulated/0/Openday/assets/videos/L57.mov',
+          L61: '/storage/emulated/0/Openday/assets/videos/L61.mov',
+          L62: '/storage/emulated/0/Openday/assets/videos/L62.mov',
+          L71: '/storage/emulated/0/Openday/assets/videos/L71.mov',
+          L82: '/storage/emulated/0/Openday/assets/videos/L82.mov',
+          L83: '/storage/emulated/0/Openday/assets/videos/L83.mov',
+          Magazyny: '/storage/emulated/0/Openday/assets/videos/Magazyny.mov',
+          Wytwarzanie: '/storage/emulated/0/Openday/assets/videos/Wytwarzanie.mov'
+          };
+        // Create tiles for each production line
+        for (const key in tileNamePaths) {
+            const tile = document.createElement('div');
+            tile.className = 'tile';
+            tile.innerText = key;
+            // tile.onclick = () => showVideo(tileNamePaths[key]);
+            tile.onclick = () => showVideo("/storage/emulated/0/Openday/assets/videos/test.mov")
+            tileContainer.appendChild(tile);
+        }
+
+        // Show the video player for the selected line
+        function showVideo(path) {
+            // const videoIndex = lineNumber - 1;
+            videoPlayer.src = path //videoUrls[videoIndex] || videoUrls[0]; // Default to first video if not enough URLs
+            tileContainer.style.display = 'none';
+            videoContainer.style.display = 'flex';
+        }
+
+        // Show the tile view and hide the video player
+        function showTiles() {
+            videoContainer.style.display = 'none';
+            tileContainer.style.display = 'grid';
+            videoPlayer.pause();
+            videoPlayer.src = ''; // Stop the video
+        }
+    </script>
+
+</body>
+</html>
